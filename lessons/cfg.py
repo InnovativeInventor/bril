@@ -7,6 +7,7 @@ TERMINATORS = [
     "call", 
     "jmp", 
     "ret",
+    "br",
 ]
 
 def is_op(instruction) -> bool:
@@ -60,6 +61,9 @@ def get_cfg(blocks, labels_map):
             terminator = block[-1]
 
             if terminator.get("op") == "jmp":
+                for label in terminator["labels"]:
+                    cfg[id].add(labels_map[label])
+            elif terminator.get("op") == "br":
                 for label in terminator["labels"]:
                     cfg[id].add(labels_map[label])
 
