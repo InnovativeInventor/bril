@@ -1,0 +1,2 @@
+command = "bril2json < {filename} | jq '.functions[].instrs[] | select(.op == \"jmp\") | .op' | wc -l"
+return_code = 0
