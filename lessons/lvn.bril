@@ -1,0 +1,7 @@
+# ARGS: 10 10
+@main(p: int, q: int) {
+  a: int = mul p q;
+  b: int = mul p q;
+  c: int = add a b;
+  print c;
+}

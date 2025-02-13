@@ -1,4 +1,5 @@
 import json
+import itertools
 import sys
 from enum import Enum
 from dataclasses import dataclass
@@ -50,6 +51,16 @@ def get_blocks(func):
         blocks[id] = block
         id += 1
     return blocks, labels_map
+
+def reconstruct_func(prog_func, labels_map, new_blocks):
+    if len(labels_map.items()):
+        new_instrs = []
+        for label, loc in labels_map.items():
+            new_instrs.extend(new_blocks[loc])
+        prog_func["instrs"] = new_instrs
+    else:
+        prog_func["instrs"] = list(itertools.chain(*new_blocks.values()))
+    return prog_func
 
 def get_cfg(blocks, labels_map):
     cfg = {}
