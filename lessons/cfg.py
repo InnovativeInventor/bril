@@ -5,7 +5,7 @@ from enum import Enum
 from dataclasses import dataclass
 
 TERMINATORS = [
-    "call", 
+#     "call", 
     "jmp", 
     "ret",
     "br",
@@ -26,11 +26,13 @@ def is_label(instruction) -> bool:
         return True
     return False
 
-def get_blocks(func):
+def get_blocks(func, blocks = False, labels_map = False, id=0):
     # Get the basic blocks of a program.
-    blocks = {}
-    labels_map = {}
-    id = 0
+    if not isinstance(blocks, dict):
+        blocks = {}
+    if not isinstance(labels_map, dict):
+        labels_map = {}
+
     block = []
     for instr in func["instrs"]:
         if is_terminator(instr):
@@ -39,17 +41,29 @@ def get_blocks(func):
             id += 1
             block = []
         elif is_label(instr):
-            if len(block):
+            print("is label", instr, block)
+            if len(blocks):
                 blocks[id] = block
                 id += 1
-                labels_map[instr["label"]] = id
                 block = []
+            labels_map[instr["label"]] = id
             block.append(instr)
         else:
             block.append(instr)
     if len(block):
         blocks[id] = block
         id += 1
+    return blocks, labels_map
+
+def get_prog_blocks(program):
+    blocks = False
+    labels_map = False
+    id = 0
+    for func in program["functions"]:
+        blocks, labels_map = get_blocks(func, blocks = blocks, labels_map = labels_map, id = id)
+        print(blocks, labels_map)
+        id = len(blocks)
+
     return blocks, labels_map
 
 def reconstruct_func(prog_func, labels_map, new_blocks):
@@ -62,10 +76,47 @@ def reconstruct_func(prog_func, labels_map, new_blocks):
         prog_func["instrs"] = list(itertools.chain(*new_blocks.values()))
     return prog_func
 
+class CFG:
+    def __init__(self, blocks, labels_map, succ_map):
+        self.blocks = blocks
+        self.labels_map = labels_map
+        self.succ_map = succ_map
+
+        self.pred_map = {}
+        for node, succs in self.succ_map.items():
+            for succ in succs:
+                if succ not in self.pred_map:
+                    self.pred_map[succ] = set()
+                self.pred_map[succ].add(node)
+
+    def __str__(self):
+        return f'Blocks: {self.blocks}\nSucc map: {self.succ_map}\nPred map: {self.pred_map}'
+
+    def iter_blocks(self):
+        for id, block in self.blocks.items():
+            yield (id, block)
+
+    def pred(self, id: int):
+        if id in self.pred_map:
+            return self.pred_map[id]
+        return set()
+
+    def succ(self, id: int):
+        return self.succ_map[id]
+
+    def lookup(self, id: int):
+        return self.blocks[id]
+
+    def entry(self):
+        # no longe true if doing whole program analysis...
+        return (0, self.blocks[0])
+
+
 def get_cfg(blocks, labels_map):
-    cfg = {}
+    print(labels_map)
+    succ_map = {}
     for id, block in blocks.items():
-        cfg[id] = set()
+        succ_map[id] = set()
 
         # Check if empty
         if block:
@@ -73,16 +124,16 @@ def get_cfg(blocks, labels_map):
 
             if terminator.get("op") == "jmp":
                 for label in terminator["labels"]:
-                    cfg[id].add(labels_map[label])
+                    succ_map[id].add(labels_map[label])
             elif terminator.get("op") == "br":
                 for label in terminator["labels"]:
-                    cfg[id].add(labels_map[label])
+                    succ_map[id].add(labels_map[label])
 
         # Fallthrough
         if id + 1 < len(blocks):
-            cfg[id].add(id + 1)
-    return cfg
+            succ_map[id].add(id + 1)
 
+    return CFG(blocks, labels_map, succ_map)
 
 if __name__ == "__main__":
     # Read program from stdin, following Bril's philosophy
