@@ -41,7 +41,6 @@ def get_blocks(func, blocks = False, labels_map = False, id=0):
             id += 1
             block = []
         elif is_label(instr):
-            print("is label", instr, block)
             if len(blocks):
                 blocks[id] = block
                 id += 1
@@ -113,7 +112,6 @@ class CFG:
 
 
 def get_cfg(blocks, labels_map):
-    print(labels_map)
     succ_map = {}
     for id, block in blocks.items():
         succ_map[id] = set()

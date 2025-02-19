@@ -64,13 +64,11 @@ def sign_analysis_transfer(block, abstract_domain):
         if "args" in instr:
             for arg in instr["args"]:
                 if arg not in abstract_domain:
-                    print('adding for arg:', arg)
                     abstract_domain[arg] = {-1, 0, 1}
 
         dest = instr.get("dest")
 
         if instr.get("op") == "const":
-            print("const for", dest, instr["value"], type(instr["value"]))
             if instr["value"] == 0:
                 abstract_domain[dest] = {0}
             elif instr["value"] < 0:
@@ -82,7 +80,6 @@ def sign_analysis_transfer(block, abstract_domain):
             left = copy.deepcopy(abstract_domain[instr["args"][0]])
             right = copy.deepcopy(abstract_domain[instr["args"][1]])
             abstract_domain[dest] = set()
-            print("add for", dest, left, right, abstract_domain[dest], instr["args"])
             for l, r in itertools.product(left, right):
                 abstract_domain[dest] = abstract_domain[dest].union(ADD_LOOKUP[(l, r)])
 
@@ -117,7 +114,6 @@ def forwards_worklist_algo(cfg, init, merge, transfer):
     worklist = list(cfg.iter_blocks())
     while len(worklist):
         id_b, b = worklist.pop()
-        print("popping one off . . .", id_b)
         orig_out = copy.deepcopy(out_df[id_b])
 
         in_df[id_b] = merge(out_df[id_p] for id_p in cfg.pred(id_b))
