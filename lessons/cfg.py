@@ -110,9 +110,32 @@ class CFG:
         # no longe true if doing whole program analysis...
         return (0, self.blocks[0])
 
+    # def exit(self):
+    #     # no longer true if blocks get modified while running
+    #     return (-1, self.blocks[-1])
+
+    def pre_order_traversal(self):
+        traversal = []
+        nodes_visited = set()
+        nodes_to_visit = {self.entry()[0]}
+
+        while nodes_to_visit:
+            node_id = nodes_to_visit.pop()
+            for neighbor in self.succ(node_id):
+                if neighbor not in nodes_visited:
+                    nodes_to_visit.add(neighbor)
+            nodes_visited.add(node_id)
+            traversal.append(node_id)
+
+        return traversal
+
+    def reverse_pre_order_traversal(self):
+        return list(reversed(self.pre_order_traversal()))
+
 
 def get_cfg(blocks, labels_map):
     succ_map = {}
+    # succ_map[-1] = set() # exit
     for id, block in blocks.items():
         succ_map[id] = set()
 
@@ -126,10 +149,15 @@ def get_cfg(blocks, labels_map):
             elif terminator.get("op") == "br":
                 for label in terminator["labels"]:
                     succ_map[id].add(labels_map[label])
+            # elif terminator.get("op") == "ret":
+            #     succ_map[id].add(-1)
 
         # Fallthrough
+        # if id + 2 < len(blocks):
         if id + 1 < len(blocks):
             succ_map[id].add(id + 1)
+
+    # blocks.append([]) # dummy block
 
     return CFG(blocks, labels_map, succ_map)
 
