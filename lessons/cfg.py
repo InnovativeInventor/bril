@@ -41,7 +41,7 @@ def get_blocks(func, blocks = False, labels_map = False, id=0):
             id += 1
             block = []
         elif is_label(instr):
-            if len(blocks):
+            if len(block):
                 blocks[id] = block
                 id += 1
                 block = []
