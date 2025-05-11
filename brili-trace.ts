@@ -411,6 +411,7 @@ function evalCall(instr: bril.Operation, state: State): Action {
  * instruction or "end" to terminate the function.
  */
 function evalInstr(instr: bril.Instruction, state: State): Action {
+  // console.log(JSON.stringify({ "instr": instr, "state": state }));
   console.log(JSON.stringify(instr));
   state.icount += BigInt(1);
 
@@ -608,6 +609,7 @@ function evalInstr(instr: bril.Instruction, state: State): Action {
     }
 
     case "br": {
+      console.log("true");
       let cond = getBool(instr, state.env, 0);
       if (cond) {
         return { "action": "jump", "label": getLabel(instr, 0) };
@@ -975,5 +977,13 @@ async function main() {
     }
   }
 }
+
+declare global {
+  interface BigInt {
+    toJSON(): Number;
+  }
+}
+
+BigInt.prototype.toJSON = function () { return Number(this) }
 
 main();
