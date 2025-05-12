@@ -15,13 +15,23 @@ pipeline = [
     "brili -p {args}",
 ]
 
-[runs.to_from_ssa_opt_licm]
+[runs.to_from_ssa_opt]
 pipeline = [
     "bril2json",
     "python3 to_ssa.py",
     "python3 dce.py",
     "python3 licm.py",
     "python3 from_ssa.py",
-    "python3 dce.py",
+    "brili -p {args}",
+]
+
+[runs.to_from_ssa_opt_licm]
+pipeline = [
+    "bril2json",
+    "python3 to_ssa.py",
+    # "python3 dce.py",
+    "python3 licm.py",
+    "python3 from_ssa.py",
+    # "python3 dce.py",
     "brili -p {args}",
 ]
