@@ -88,6 +88,9 @@ class CFG:
                     self.pred_map[succ] = set()
                 self.pred_map[succ].add(node)
 
+    def __len__(self):
+        return len(self.blocks)
+
     def __str__(self):
         return f'Blocks: {self.blocks}\nSucc map: {self.succ_map}\nPred map: {self.pred_map}'
 

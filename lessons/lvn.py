@@ -25,7 +25,7 @@ def lvn(block):
         if "args" in instr:
             for a in instr["args"]:
                 if a in var2num:
-                    print(a, file=sys.stderr)
+                    # print(a, file=sys.stderr)
                     value_l.append(var2num[a])
                 else: # live-in var
                     current_num += 1
@@ -54,8 +54,8 @@ def lvn(block):
                 new_args = []
                 for a in instr["args"]:
                     if a in var2num:
-                        print(table, file=sys.stderr)
-                        print("looking up:", a, var2num[str(a)], list(table.values())[var2num[a]], file = sys.stderr)
+                        # print(table, file=sys.stderr)
+                        # print("looking up:", a, var2num[str(a)], list(table.values())[var2num[a]], file = sys.stderr)
                         new_args.append(list(table.values())[var2num[str(a)]])
                     else:
                         print("fail loudly")

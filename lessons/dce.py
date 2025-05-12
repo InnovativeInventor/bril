@@ -20,7 +20,7 @@ def dce(blocks):
         new_block = []
         for instr in block:
             if "dest" in instr and instr["dest"] not in used_vars:
-                print(instr, file=sys.stderr)
+                # print(instr, file=sys.stderr)
                 continue
             else:
                 new_block.append(instr)
